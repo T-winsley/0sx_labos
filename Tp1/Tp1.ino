@@ -3,11 +3,10 @@ const int LED_PIN = 13;
 const char ETUDIANT[] = "2142752";
 
 void setup() {
-
+// Sert à afficher l’état du programme
+  Serial.begin(9600); 
+  11                           
   pinMode(LED_PIN, OUTPUT);
-
-  // Sert à afficher l’état du programme
-  Serial.begin(9600);
 }
 
 void loop() {
