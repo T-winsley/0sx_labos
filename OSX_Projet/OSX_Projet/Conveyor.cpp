@@ -37,9 +37,9 @@ void Conveyor::activerUrgence() {
 }
 
 void Conveyor::desactiverUrgence() {
-    _urgence  = false;
-    _etat     = CONV_STOP;
-    _vitesse  = 0;
+    _urgence = false;
+    _etat    = CONV_STOP;
+    _vitesse = 0;
     _mettreAJourLEDs();
 }
 
@@ -47,8 +47,6 @@ Etat Conveyor::getState()     const { return _etat; }
 int  Conveyor::getSpeed()     const { return _vitesse; }
 bool Conveyor::estEnUrgence() const { return _urgence; }
 
-// IN1=HIGH, vitesse > 0 → avance
-// IN1=LOW quand vitesse = 0 pour eviter le signal residuel
 void Conveyor::_forward() {
     if (_vitesse == 0) {
         digitalWrite(_in1, LOW);
@@ -59,15 +57,12 @@ void Conveyor::_forward() {
     }
 }
 
-// IN2 est a GND physiquement donc le moteur ne peut pas reculer
-// On simule le recul en inversant IN1 avec une vitesse reduite
+// IN2 câblé à GND physiquement — IN1=LOW + PWM = frein/recul selon le montage
 void Conveyor::_backward() {
-    // Avec IN2 a GND : IN1=LOW et PWM → frein/recul selon le montage
     digitalWrite(_in1, LOW);
     analogWrite(_pwm, _vitesse);
 }
 
-// Arret complet : IN1=LOW et PWM=0
 void Conveyor::_stopMotor() {
     digitalWrite(_in1, LOW);
     analogWrite(_pwm, 0);
@@ -88,18 +83,15 @@ void Conveyor::_mettreAJourLEDs() {
 }
 
 void Conveyor::_lireJoystick() {
-    // Direction axe Y - seuils 600/400 comme le projet de reference
     if      (analogRead(_joyY) > 600) _etat = CONV_AVANCE;
     else if (analogRead(_joyY) < 400) _etat = CONV_RECULE;
     else                               _etat = CONV_STOP;
 
-    // Arret : vitesse revient a 0
     if (_etat == CONV_STOP) {
         _vitesse = 0;
         return;
     }
 
-    // Vitesse axe X - toutes les 50ms comme le projet de reference
     static unsigned long dernierAjust = 0;
     if ((millis() - dernierAjust) >= 50) {
         dernierAjust = millis();

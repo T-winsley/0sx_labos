@@ -1,6 +1,5 @@
 #include "SystemeControle.h"
 
-// IRremote inclus ici seulement (evite les conflits de symboles)
 #define NO_LED_FEEDBACK_CODE
 #define EXCLUDE_EXOTIC_PROTOCOLS
 #include <IRremote.hpp>
@@ -16,12 +15,9 @@ void SystemeControle::initialiser(int boutonPin) {
     pinMode(boutonPin, INPUT_PULLUP);
 }
 
-// Lit les commandes du port serie et de la telecommande IR.
-// Les commandes sont ignorees si le systeme est en mode urgence.
 void SystemeControle::lireEntrees() {
     if (modeActuel == MODE_URGENCE) return;
 
-    // Commandes serie : 1=RABAIS, 2=NORMAL, 3=ERREUR, 4=FERMER
     if (Serial.available()) {
         char c = Serial.read();
         if      (c == '1') modeActuel = MODE_RABAIS;
@@ -30,7 +26,6 @@ void SystemeControle::lireEntrees() {
         else if (c == '4') modeActuel = MODE_FERMER;
     }
 
-    // Commandes IR (codes hexadecimaux de la telecommande fournie)
     if (IrReceiver.decode()) {
         uint32_t val = IrReceiver.decodedIRData.decodedRawData;
         if (val != 0) {
@@ -43,15 +38,13 @@ void SystemeControle::lireEntrees() {
     }
 }
 
-// Met a jour la matrice en fonction du mode actuel.
-// currentTime est passe aux animations non-bloquantes (rabais et erreur).
 void SystemeControle::mettreAJourMatrice(unsigned long currentTime) {
     switch (modeActuel) {
-        case MODE_RABAIS:  _matrice.afficherRabais(currentTime);  break;
-        case MODE_NORMAL:  _matrice.afficherNormal();              break;
-        case MODE_ERREUR:  _matrice.afficherErreur(currentTime);  break;
-        case MODE_FERMER:  _matrice.eteindre();                    break;
-        case MODE_URGENCE: _matrice.afficherUrgence();             break;
+        case MODE_RABAIS:  _matrice.afficherRabais(currentTime); break;
+        case MODE_NORMAL:  _matrice.afficherNormal();            break;
+        case MODE_ERREUR:  _matrice.afficherErreur(currentTime); break;
+        case MODE_FERMER:  _matrice.eteindre();                  break;
+        case MODE_URGENCE: _matrice.afficherUrgence();           break;
     }
 }
 
@@ -60,7 +53,6 @@ void SystemeControle::desactiverUrgence() { modeActuel = MODE_NORMAL; }
 
 Mode SystemeControle::getMode() const { return modeActuel; }
 
-// Retourne le nom du mode pour l'affichage sur le LCD
 const char* SystemeControle::getNomMode() const {
     switch (modeActuel) {
         case MODE_RABAIS:  return "RABAIS";
@@ -72,7 +64,6 @@ const char* SystemeControle::getNomMode() const {
     }
 }
 
-// Retourne le statut pour le payload MQTT
 const char* SystemeControle::getStatutMQTT() const {
     switch (modeActuel) {
         case MODE_RABAIS:  return "rabais";
@@ -82,7 +73,6 @@ const char* SystemeControle::getStatutMQTT() const {
     }
 }
 
-// Interruption : bascule urgence via bouton (garde pour compatibilite)
 void SystemeControle::gestionBouton() {
     static unsigned long dernierTemps = 0;
     unsigned long tempsActuel = millis();

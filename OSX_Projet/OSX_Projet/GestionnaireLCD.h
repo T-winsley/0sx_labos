@@ -6,22 +6,20 @@
 #include "Conveyor.h"
 #include "SystemeControle.h"
 
+// Défilement cyclique LCD : Porte → Convoyeur → Matrice (toutes les 3 s)
+// En urgence : affiche uniquement le message d'arrêt d'urgence
 class GestionnaireLCD {
 public:
     GestionnaireLCD(Porte& porte, Conveyor& convoyeur, SystemeControle& systeme);
 
     void begin();
-
-    // Appeler a chaque iteration de loop().
-    // En urgence : affiche uniquement "URGENCE", arrete le defilement.
-    // Sinon : defilement cyclique entre 3 pages (porte / convoyeur / matrice).
     void update(bool enUrgence);
 
 private:
-    LCD_I2C _lcd;
-    Porte&            _porte;
-    Conveyor&         _convoyeur;
-    SystemeControle&  _systeme;
+    LCD_I2C          _lcd;
+    Porte&           _porte;
+    Conveyor&        _convoyeur;
+    SystemeControle& _systeme;
 
     int           _pageCourante;
     unsigned long _dernierChangPage;

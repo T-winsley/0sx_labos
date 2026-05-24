@@ -15,11 +15,9 @@ void GestionnaireMQTT::begin() {
     }
 
     _connecterWifi();
-
     _mqttClient.setServer(_broker, _port);
     _mqttClient.setKeepAlive(10);
     _mqttClient.setCallback(_gererReception);
-
     _connecterMQTT();
 }
 
@@ -29,8 +27,6 @@ void GestionnaireMQTT::_connecterWifi() {
     if (millis() - _previousMillisWifi >= DELAI_RECONNEXION) {
         _previousMillisWifi = millis();
         Serial.print("Connexion au WiFi...");
-
-        // Le module se connecte automatiquement au reseau sauvegarde par WiFiConfig.ino
         if (WiFi.status() == WL_CONNECTED) {
             Serial.println("Connecte!");
             Serial.print("IP : ");
@@ -47,7 +43,6 @@ void GestionnaireMQTT::_connecterMQTT() {
     if (millis() - _previousMillisMQTT >= DELAI_RECONNEXION) {
         _previousMillisMQTT = millis();
         Serial.print("Connexion au broker MQTT...");
-
         if (_mqttClient.connect("Winsley_Magasin11", _mqttUser, _mqttPass)) {
             Serial.println("Connecte!");
             _mqttClient.subscribe(_topicSub);

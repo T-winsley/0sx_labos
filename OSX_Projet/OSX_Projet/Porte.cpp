@@ -16,7 +16,6 @@ Porte::Porte(int brocheTrig, int brocheEcho, int brocheServo, int brocheBtn)
 void Porte::begin() {
     pinMode(_brocheTrig, OUTPUT);
     pinMode(_brocheEcho, INPUT);
-    // Le bouton est gere par OneButton dans le .ino
     if (_brocheBtn >= 0) pinMode(_brocheBtn, INPUT_PULLUP);
     _servo.attach(_brocheServo);
     _servo.write(ANGLE_FERME);
@@ -26,11 +25,9 @@ void Porte::update(bool urgenceActivee) {
     bool btnAppuye = _boutonAppuye();
 
     switch (_etat) {
-
         case PORTE_FERMEE: {
             if (urgenceActivee) { activerUrgence(); break; }
             int  dist          = _lireDistance();
-            // Un client est detecte si la distance est valide et inferieure au seuil
             bool clientDetecte = (dist > 0 && dist <= DISTANCE_DETECTION_CM);
             if (clientDetecte || btnAppuye) {
                 _nbClients++;
@@ -38,36 +35,26 @@ void Porte::update(bool urgenceActivee) {
             }
             break;
         }
-
         case PORTE_OUVERTURE: {
             if (urgenceActivee) { activerUrgence(); break; }
-            if (_deplacerServoVers(ANGLE_OUVERT)) {
-                _entrerEtat(PORTE_OUVERTE);
-            }
+            if (_deplacerServoVers(ANGLE_OUVERT)) _entrerEtat(PORTE_OUVERTE);
             break;
         }
-
         case PORTE_OUVERTE: {
             if (urgenceActivee) { activerUrgence(); break; }
-            // Appui sur le bouton reinitialise le compte a rebours
             if (btnAppuye) _tempsDebutAttente = millis();
             if ((millis() - _tempsDebutAttente) >= (unsigned long)DELAI_ATTENTE_MS) {
                 _entrerEtat(PORTE_FERMETURE);
             }
             break;
         }
-
         case PORTE_FERMETURE: {
             if (urgenceActivee) { activerUrgence(); break; }
             if (btnAppuye) { _entrerEtat(PORTE_OUVERTURE); break; }
-            if (_deplacerServoVers(ANGLE_FERME)) {
-                _entrerEtat(PORTE_FERMEE);
-            }
+            if (_deplacerServoVers(ANGLE_FERME)) _entrerEtat(PORTE_FERMEE);
             break;
         }
-
         case PORTE_URGENCE:
-            // La sortie d'urgence est geree depuis le .ino via desactiverUrgence()
             break;
     }
 }
@@ -102,7 +89,6 @@ int Porte::_lireDistance() {
 }
 
 bool Porte::_boutonAppuye() {
-    // Retourne false si le bouton est gere ailleurs (broche = -1)
     if (_brocheBtn < 0) return false;
 
     bool etat = digitalRead(_brocheBtn);

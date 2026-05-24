@@ -10,15 +10,13 @@ GestionnaireLCD::GestionnaireLCD(Porte& porte, Conveyor& convoyeur, SystemeContr
       _urgenceAffichee(false) {}
 
 void GestionnaireLCD::begin() {
-    _lcd.begin();       // LCD_I2C de blackhat utilise begin() et non init()
+    _lcd.begin();
     _lcd.backlight();
     _lcd.clear();
 }
 
 void GestionnaireLCD::update(bool enUrgence) {
-
     if (enUrgence) {
-        // Interrompt le defilement et fixe l'affichage sur la page urgence.
         if (!_urgenceAffichee) {
             _lcd.clear();
             _afficherPageUrgence();
@@ -27,7 +25,6 @@ void GestionnaireLCD::update(bool enUrgence) {
         return;
     }
 
-    // Sortie d'urgence : force un rafraichissement immediat.
     if (_urgenceAffichee) {
         _urgenceAffichee  = false;
         _dernierChangPage = 0;
@@ -45,8 +42,6 @@ void GestionnaireLCD::update(bool enUrgence) {
     _pageCourante = (_pageCourante + 1) % 3;
 }
 
-// --- Pages ---
-
 void GestionnaireLCD::_afficherPagePorte() {
     _lcd.setCursor(0, 0);
     _lcd.print("Porte:          ");
@@ -61,15 +56,13 @@ void GestionnaireLCD::_afficherPagePorte() {
 }
 
 void GestionnaireLCD::_afficherPageConvoyeur() {
-    // Ligne 0 : actif + sens
     _lcd.setCursor(0, 0);
     bool actif = (_convoyeur.getState() == CONV_AVANCE || _convoyeur.getState() == CONV_RECULE);
     _lcd.print(actif ? "Conv:OUI " : "Conv:NON ");
     if      (_convoyeur.getState() == CONV_AVANCE) _lcd.print("AVANT  ");
     else if (_convoyeur.getState() == CONV_RECULE) _lcd.print("ARR    ");
-    else                                       _lcd.print("STOP   ");
+    else                                           _lcd.print("STOP   ");
 
-    // Ligne 1 : vitesse
     _lcd.setCursor(0, 1);
     _lcd.print("Vitesse: ");
     _lcd.print(_convoyeur.getSpeed());

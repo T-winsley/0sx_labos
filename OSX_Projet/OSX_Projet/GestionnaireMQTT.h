@@ -1,13 +1,11 @@
 #pragma once
+
 #include <Arduino.h>
 #include <WiFiEspAT.h>
 #include <PubSubClient.h>
 
-/*
- * GestionnaireMQTT
- * Gere la connexion WiFi persistante et la communication MQTT.
- * Le WiFi doit etre configure UNE FOIS avec WiFiConfig.ino avant usage.
- */
+// Connexion WiFi persistante et communication MQTT
+// Prérequis : configurer le WiFi une seule fois avec WiFiConfig.ino
 class GestionnaireMQTT {
 public:
     GestionnaireMQTT();
@@ -28,9 +26,9 @@ private:
     const char* _topicPub = "magasin/11/state";
     const char* _topicSub = "magasin/11/set";
 
-    unsigned long _previousMillisWifi = 0;
-    unsigned long _previousMillisMQTT = 0;
-    const unsigned long DELAI_RECONNEXION = 2000;
+    unsigned long       _previousMillisWifi = 0;
+    unsigned long       _previousMillisMQTT = 0;
+    const unsigned long DELAI_RECONNEXION   = 2000;
 
     void _connecterWifi();
     void _connecterMQTT();
